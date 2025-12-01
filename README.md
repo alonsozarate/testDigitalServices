@@ -57,7 +57,8 @@ CREATE TABLE user_session_analysis (
   Se implementa una lógica de "Upsert" o reprocesamiento de particiones en la capa Silver basada en *Event Time* y no solo en *Processing Time*. Spark permite leer particiones antiguas y actualizar los registros si llega un evento con timestamp pasado.
 
 * **b. Calidad y Duplicados:**
-  *Deduplicación:* En la capa Silver, se utilizan Window Functions (`ROW_NUMBER`) particionadas por ID y ordenadas por timestamp descendente para garantizar que siempre prevalezca el estado más reciente del dato.
+  *Deduplicación:*
+  En la capa Silver, se utilizan Window Functions (`ROW_NUMBER`) particionadas por ID y ordenadas por timestamp descendente para garantizar que siempre prevalezca el estado más reciente del dato.
 
 * **c. Validación:**
   Se sugiere implementar **Great Expectations** en el pipeline de Airflow para bloquear la carga si el porcentaje de nulos supera un umbral.
@@ -69,7 +70,8 @@ CREATE TABLE user_session_analysis (
 Se implementa una lógica de "Upsert" o reprocesamiento de particiones en la capa Silver basada en Event Time y no solo en Processing Time. Spark permite leer particiones antiguas y actualizar los registros si llega un evento con timestamp pasado.
 
 * **Calidad y Duplicados:**
-Deduplicación: En la capa Silver, se utilizan Window Functions (ROW_NUMBER) particionadas por ID y ordenadas por timestamp descendente para garantizar que siempre prevalezca el estado más reciente del dato.
+Deduplicación:
+En la capa Silver, se utilizan Window Functions (ROW_NUMBER) particionadas por ID y ordenadas por timestamp descendente para garantizar que siempre prevalezca el estado más reciente del dato.
 
 * **Validación:**
 Se sugiere implementar Great Expectations en el pipeline de Airflow para bloquear la carga si el porcentaje de nulos supera un umbral.
@@ -151,7 +153,7 @@ Nota: El pipeline ha sido validado exitosamente en entornos Linux (Google Colab)
 La arquitectura Batch actual tiene una latencia de horas-días, lo cual esinsuficiente para detener un fraude en el momento. Para soportar ML en tiempo real, se requiere:
 
 Streaming Ingestion: 
-Migrar de archivos S3 a Amazon Kinesis Data Streams o Kafka.
+* **Migrar de archivos S3 a Amazon Kinesis Data Streams o Kafka.**
 
 Motor de Procesamiento: 
 Implementar Spark Structured Streaming o Apache Flink para calcular ventanas de tiempo (ej. "más de 3 transacciones en 1 minuto").
@@ -164,7 +166,7 @@ Implementar una Feature Store (ej. Amazon SageMaker Feature Store o Redis) para 
 Caso de Uso: Generación Automática de Tests de Calidad (Data Quality).
 
 Implementación:
-* Integrar un modelo LLM (como Gemini o GPT-4) en el pipeline de CI/CD. Al hacer un Pull Request con una nueva transformación SQL/PySpark, el modelo analiza la lógica de negocio y genera automáticamente:
+Integrar un modelo LLM (como Gemini o GPT-4) en el pipeline de CI/CD. Al hacer un Pull Request con una nueva transformación SQL/PySpark, el modelo analiza la lógica de negocio y genera automáticamente:
 
 * **Casos de prueba unitarios (pytest).**
 
