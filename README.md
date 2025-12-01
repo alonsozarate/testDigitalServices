@@ -1,65 +1,68 @@
-Plataforma de Analítica de Datos - Digital Services Inc.
+# Plataforma de Analítica de Datos - Digital Services Inc.
 
-Contexto del Proyecto
+## Contexto del Proyecto
 
-Este repositorio contiene la solución técnica para el reto de Ingeniería de Datos de "Digital Services Inc.". El objetivo es construir los cimientos de una plataforma de datos moderna que unifique la visión del usuario a través de múltiples fuentes (Streaming, Batch y Relacional), consolidando la información en una capa Gold (Medallion Architecture) para análisis avanzado.
+Este repositorio contiene la solución técnica para el reto de Ingeniería de Datos de **"Digital Services Inc."**. El objetivo es construir los cimientos de una plataforma de datos moderna que unifique la visión del usuario a través de múltiples fuentes (Streaming, Batch y Relacional), consolidando la información en una capa **Gold (Medallion Architecture)** para análisis avanzado.
 
-El pipeline sigue una Arquitectura Medallion (Bronze, Silver, Gold) implementada con PySpark, diseñada para ser escalable en la nube (AWS).
+El pipeline sigue una **Arquitectura Medallion (Bronze, Silver, Gold)** implementada con **PySpark**, diseñada para ser escalable en la nube (**AWS**).
 
-Parte 1: Desarrollo caso Kashio
+## Parte 1: Desarrollo caso Kashio
 
-Para el siguiente caso se ha desarrollado un pipeline ETL que ingiere datos de eventos, transacciones y usuarios, los cuales son procesados y consolidados en una capa Gold (Medallion Architecture) para análisis avanzado.
+Para el siguiente caso se ha desarrollado un pipeline ETL que ingiere datos de eventos, transacciones y usuarios, los cuales son procesados y consolidados en una capa **Gold (Medallion Architecture)** para análisis avanzado.
 
-1. Diseño de Esquema - Golden
+### 1. Diseño de Esquema (Capa Gold)
 
-La tabla final user_session_analysis se diseñó desnormalizada para facilitar el análisis sin necesidad de JOINs complejos en tiempo de lectura. (DDL Completo: design/user_session_analysis.sql)
+La tabla final `user_session_analysis` se diseñó desnormalizada para facilitar el análisis OLAP.
 
-DDL:
+**DDL Optimizado (Redshift):**
+
+```sql
 CREATE TABLE user_session_analysis (
-	session_id VARCHAR(50) NOT NULL,
-	user_id VARCHAR(50) DISTKEY,
-	user_country VARCHAR(50),
-	user_device VARCHAR(50),
-	session_start_time TIMESTAMP SORTKEY,
-	total_events INT DEFAULT 0,
-	event_type VARCHAR(100),
-	transaction_id VARCHAR(50),
-	amount DECIMAL(10,2),
-	currency VARCHAR(3),
-	is_conversion BOOLEAN DEFAULT FALSE
+    session_id VARCHAR(50) NOT NULL,
+    user_id VARCHAR(50) DISTKEY,          -- Optimización: Distribución por Usuario
+    user_country VARCHAR(50),
+    user_device VARCHAR(50),
+    session_start_time TIMESTAMP SORTKEY, -- Optimización: Ordenamiento por Tiempo
+    total_events INT DEFAULT 0,
+    event_type VARCHAR(100),
+    transaction_id VARCHAR(50),
+    amount DECIMAL(10,2),
+    currency VARCHAR(3),
+    is_conversion BOOLEAN DEFAULT FALSE
 );
 
-Criterio selección columnas:
--session_id: Identificador único presente en eventos y transacciones que permite agrupar la interacción.
--user_id: Clave de distribución (DISTKEY) que conecta las tres fuentes (Eventos, Transacciones y Usuarios) en un mismo nodo.
--user_country: Dato dimensional de la tabla de usuarios desnormalizado para análisis geográfico sin necesidad de JOINS.
--user_device: Dato dimensional desnormalizado para segmentar el análisis según la tecnología del cliente.
--session_start_time: Clave de ordenamiento (SORTKEY) derivada de los eventos para optimizar consultas temporales.
--total_events: Métrica agregada que cuantifica la intensidad de la actividad del usuario durante la sesión.
--event_type: Categoriza la interacción principal ocurrida en la sesión (streaming).
--transaction_id: Vincula la sesión con el archivo batch; su existencia confirma una conversión.
--amount: Métrica financiera crítica proveniente de las transacciones para calcular el valor de la sesión.
--currency: Necesario para interpretar correctamente el monto monetario de la transacción.
--is_conversion: Bandera booleana derivada que facilita identificar rápidamente si la sesión cumplió el objetivo de venta.
+### Criterio de selección de columnas:
 
-Estrategia de Optimización:
+* **session_id:** Identificador único presente en eventos y transacciones que permite agrupar la interacción.
+* **user_id:** Clave de distribución (`DISTKEY`) que conecta las tres fuentes (Eventos, Transacciones y Usuarios) en un mismo nodo.
+* **user_country:** Dato dimensional de la tabla de usuarios desnormalizado para análisis geográfico sin necesidad de JOINS.
+* **user_device:** Dato dimensional desnormalizado para segmentar el análisis según la tecnología del cliente.
+* **session_start_time:** Clave de ordenamiento (`SORTKEY`) derivada de los eventos para optimizar consultas temporales.
+* **total_events:** Métrica agregada que cuantifica la intensidad de la actividad del usuario durante la sesión.
+* **event_type:** Categoriza la interacción principal ocurrida en la sesión (streaming).
+* **transaction_id:** Vincula la sesión con el archivo batch; su existencia confirma una conversión.
+* **amount:** Métrica financiera crítica proveniente de las transacciones para calcular el valor de la sesión.
+* **currency:** Necesario para interpretar correctamente el monto monetario de la transacción.
+* **is_conversion:** Bandera booleana derivada que facilita identificar rápidamente si la sesión cumplió el objetivo de venta.
 
-DISTKEY --> user_id 
+### Estrategia de Optimización:
+
+* **DISTKEY --> user_id** 
 Agrupa datos del mismo usuario en el mismo nodo para acelerar JOINs históricos.
 
-SORTKEY --> session_start_time
+* **SORTKEY --> session_start_time**
 Acelera las consultas de rango de tiempo.
 
 
-2. Manejo de Escenarios Críticos
+### 2. Manejo de Escenarios Críticos
 
-a.- Datos tardíos:
+* **Datos tardíos:**
 Se implementa una lógica de "Upsert" o reprocesamiento de particiones en la capa Silver basada en Event Time y no solo en Processing Time. Spark permite leer particiones antiguas y actualizar los registros si llega un evento con timestamp pasado.
 
-b.- Calidad y Duplicados:
+* **Calidad y Duplicados:**
 Deduplicación: En la capa Silver, se utilizan Window Functions (ROW_NUMBER) particionadas por ID y ordenadas por timestamp descendente para garantizar que siempre prevalezca el estado más reciente del dato.
 
-c.- Validación: 
+* **Validación:**
 Se sugiere implementar Great Expectations en el pipeline de Airflow para bloquear la carga si el porcentaje de nulos supera un umbral.
 
 
@@ -67,7 +70,7 @@ Parte 2: Ejecución del Prototipo (Instrucciones)
 
 Este repositorio incluye un generador de datos sintéticos y un pipeline ETL desarrollado en PySpark que simula el flujo completo (Bronze -> Silver -> Gold) localmente.
 
-a.- Estructura del Proyecto
+### Estructura del Proyecto
 
 kashio_challenge_v2/
 ├── config/             # Configuración centralizada (YAML)
@@ -91,7 +94,7 @@ kashio_challenge_v2/
 └── README.md           # Documentación
 
 
-b.- Prueba y ejecución:
+### Prueba y ejecución:
 
 Opción A (Recomendada - Linux/Colab): 
 Google Colab o entorno Linux con Java 8/11 instalado.
@@ -99,32 +102,28 @@ Google Colab o entorno Linux con Java 8/11 instalado.
 Opción B (Windows Local): 
 Requiere configuración manual de winutils.exe y HADOOP_HOME.
 
-c.- Pasos para Ejecutar
+### Pasos para Ejecutar
 
 Clonar el repositorio:
 
 git clone https://github.com/alonsozarate/testDigitalServices.git
 cd kashio_challenge_v2
 
-
-d.- Instalar dependencias:
+### Instalar dependencias:
 
 pip install -r requirements.txt
 
-
-e.- Generar Datos de Prueba --> Capa Bronze:
+### Generar Datos de Prueba --> Capa Bronze:
 Este script crea archivos JSON y CSV aleatorios en data/bronze/.
 
 python src/data_generator.py
 
-
-f.- Ejecutar el Pipeline ETL --> Silver -> Gold:
+### Ejecutar el Pipeline ETL --> Silver -> Gold:
 Procesa los datos, limpia, estandariza y genera la tabla analítica.
 
 python src/etl_pipeline.py
 
-
-g.- Verificar Resultados:
+### Verificar Resultados:
 Los archivos procesados (Parquet/CSV) se encontrarán en:
 
 data/silver/ (Datos limpios)
@@ -134,9 +133,9 @@ data/gold/user_session_analysis/ (Tabla final para reporte)
 Nota: El pipeline ha sido validado exitosamente en entornos Linux (Google Colab) para garantizar compatibilidad nativa con Spark.
 
 
-Parte 3: Estrategia de IA/ML (Visión Futura)
+### Parte 3: Estrategia de IA/ML (Visión Futura)
 
-a.- Infraestructura para Detección de Fraude en Tiempo Real
+#### a.- Infraestructura para Detección de Fraude en Tiempo Real
 
 La arquitectura Batch actual tiene una latencia de horas-días, lo cual esinsuficiente para detener un fraude en el momento. Para soportar ML en tiempo real, se requiere:
 
@@ -149,7 +148,7 @@ Implementar Spark Structured Streaming o Apache Flink para calcular ventanas de 
 Feature Store: 
 Implementar una Feature Store (ej. Amazon SageMaker Feature Store o Redis) para servir variables pre-calculadas al modelo con latencia de milisegundos.
 
-b.- GenAI en Ingeniería de Datos
+#### b.- GenAI en Ingeniería de Datos
 
 Caso de Uso: Generación Automática de Tests de Calidad (Data Quality).
 
