@@ -3,7 +3,8 @@ import sys
 import os
 
 if os.name == 'nt':
-    HADOOP_HOME_PATH = r"C:\Users\e_javalera\hadoop"
+    # Actualizar de acuerdo a donde se coloco winutils y hadoop.dll
+    HADOOP_HOME_PATH = r"C:\hadoop" 
     
     os.environ['HADOOP_HOME'] = HADOOP_HOME_PATH
     os.environ['hadoop.home.dir'] = HADOOP_HOME_PATH
