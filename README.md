@@ -29,7 +29,7 @@ CREATE TABLE user_session_analysis (
     amount DECIMAL(10,2),
     currency VARCHAR(3),
     is_conversion BOOLEAN DEFAULT FALSE
-);
+);```
 
 ### Criterio de selección de columnas:
 
