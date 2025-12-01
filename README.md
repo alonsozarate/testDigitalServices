@@ -163,10 +163,11 @@ Implementar una Feature Store (ej. Amazon SageMaker Feature Store o Redis) para 
 
 Caso de Uso: Generación Automática de Tests de Calidad (Data Quality).
 
-Implementación: Integrar un modelo LLM (como Gemini o GPT-4) en el pipeline de CI/CD. Al hacer un Pull Request con una nueva transformación SQL/PySpark, el modelo analiza la lógica de negocio y genera automáticamente:
+* **Implementación:**
+* Integrar un modelo LLM (como Gemini o GPT-4) en el pipeline de CI/CD. Al hacer un Pull Request con una nueva transformación SQL/PySpark, el modelo analiza la lógica de negocio y genera automáticamente:
 
-Casos de prueba unitarios (pytest).
+* **Casos de prueba unitarios (pytest).**
 
-Reglas de calidad para dbt (unique, not_null, accepted_values).
+* **Reglas de calidad para dbt (unique, not_null, accepted_values).**
 
-Documentación técnica del dataset para el catálogo de datos.
+* **Documentación técnica del dataset para el catálogo de datos.**
