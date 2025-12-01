@@ -113,11 +113,12 @@ Requiere configuración manual de winutils.exe y HADOOP_HOME.
 
 ### Pasos para Ejecutar
 
-Clonar el repositorio:
+**Clonar el repositorio:**
 ´´´
 git clone https://github.com/alonsozarate/testDigitalServices.git
-´´´
+
 cd kashio_challenge_v2
+´´´
 
 ### Instalar dependencias:
 
