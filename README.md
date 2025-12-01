@@ -121,26 +121,26 @@ cd kashio_challenge_v2
 ```
 
 ### Instalar dependencias:
-
+```
 pip install -r requirements.txt
-
+```
 ### Generar Datos de Prueba --> Capa Bronze:
 Este script crea archivos JSON y CSV aleatorios en data/bronze/.
-
+```
 python src/data_generator.py
-
+```
 ### Ejecutar el Pipeline ETL --> Silver -> Gold:
 Procesa los datos, limpia, estandariza y genera la tabla analítica.
-
+```
 python src/etl_pipeline.py
-
+```
 ### Verificar Resultados:
 Los archivos procesados (Parquet/CSV) se encontrarán en:
-
+```
 data/silver/ (Datos limpios)
 
 data/gold/user_session_analysis/ (Tabla final para reporte)
-
+```
 Nota: El pipeline ha sido validado exitosamente en entornos Linux (Google Colab) para garantizar compatibilidad nativa con Spark.
 
 
