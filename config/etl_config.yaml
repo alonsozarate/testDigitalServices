@@ -1,0 +1,6 @@
+data_paths:
+  raw_events: "data/bronze/events/"
+  raw_transactions: "data/bronze/transactions/"
+  raw_users: "data/bronze/users/"
+  silver_output: "data/silver/"
+  gold_output: "data/gold/"

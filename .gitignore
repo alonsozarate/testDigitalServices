@@ -1,0 +1,8 @@
+# Ignorar datos locales
+data/
+
+# Ignorar archivos de sistema y cache de Python
+__pycache__/
+*.pyc
+.DS_Store
+kashio/
