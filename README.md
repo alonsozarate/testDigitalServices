@@ -29,6 +29,19 @@ CREATE TABLE user_session_analysis (
 	is_conversion BOOLEAN DEFAULT FALSE
 );
 
+Criterio selección columnas:
+-session_id: Identificador único presente en eventos y transacciones que permite agrupar la interacción.
+-user_id: Clave de distribución (DISTKEY) que conecta las tres fuentes (Eventos, Transacciones y Usuarios) en un mismo nodo.
+-user_country: Dato dimensional de la tabla de usuarios desnormalizado para análisis geográfico sin necesidad de JOINS.
+-user_device: Dato dimensional desnormalizado para segmentar el análisis según la tecnología del cliente.
+-session_start_time: Clave de ordenamiento (SORTKEY) derivada de los eventos para optimizar consultas temporales.
+-total_events: Métrica agregada que cuantifica la intensidad de la actividad del usuario durante la sesión.
+-event_type: Categoriza la interacción principal ocurrida en la sesión (streaming).
+-transaction_id: Vincula la sesión con el archivo batch; su existencia confirma una conversión.
+-amount: Métrica financiera crítica proveniente de las transacciones para calcular el valor de la sesión.
+-currency: Necesario para interpretar correctamente el monto monetario de la transacción.
+-is_conversion: Bandera booleana derivada que facilita identificar rápidamente si la sesión cumplió el objetivo de venta.
+
 Estrategia de Optimización:
 
 DISTKEY --> user_id 
