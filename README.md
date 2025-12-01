@@ -47,11 +47,19 @@ CREATE TABLE user_session_analysis (
 
 ### Estrategia de Optimización:
 
-* **DISTKEY --> user_id** 
-Agrupa datos del mismo usuario en el mismo nodo para acelerar JOINs históricos.
+* **DISTKEY --> user_id**: Agrupa datos del mismo usuario en el mismo nodo para acelerar JOINs históricos.
+* **SORTKEY --> session_start_time**: Acelera las consultas de rango de tiempo.
 
-* **SORTKEY --> session_start_time**
-Acelera las consultas de rango de tiempo.
+### 2. Manejo de Escenarios Críticos
+
+* **a. Datos tardíos:**
+  Se implementa una lógica de "Upsert" o reprocesamiento de particiones en la capa Silver basada en *Event Time* y no solo en *Processing Time*. Spark permite leer particiones antiguas y actualizar los registros si llega un evento con timestamp pasado.
+
+* **b. Calidad y Duplicados:**
+  *Deduplicación:* En la capa Silver, se utilizan Window Functions (`ROW_NUMBER`) particionadas por ID y ordenadas por timestamp descendente para garantizar que siempre prevalezca el estado más reciente del dato.
+
+* **c. Validación:**
+  Se sugiere implementar **Great Expectations** en el pipeline de Airflow para bloquear la carga si el porcentaje de nulos supera un umbral.
 
 
 ### 2. Manejo de Escenarios Críticos
