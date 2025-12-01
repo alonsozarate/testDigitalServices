@@ -80,7 +80,7 @@ Parte 2: Ejecución del Prototipo (Instrucciones)
 Este repositorio incluye un generador de datos sintéticos y un pipeline ETL desarrollado en PySpark que simula el flujo completo (Bronze -> Silver -> Gold) localmente.
 
 ### Estructura del Proyecto
-
+```
 kashio_challenge_v2/
 ├── config/             # Configuración centralizada (YAML)
 |   └── etl_config.yaml  # Configuración del pipeline
@@ -101,7 +101,7 @@ kashio_challenge_v2/
 |   └── etl_pipeline.py    # Lógica ETL (PySpark)
 ├── requirements.txt    # Dependencias
 └── README.md           # Documentación
-
+```
 
 ### Prueba y ejecución:
 
